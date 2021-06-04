@@ -55,7 +55,7 @@ func compareStats(stat, comparisonStat, goal string) (state, string, error) {
 	}
 
 	if goal == "decrease" {
-		if statNum <= prevStatNum {
+		if statNum < prevStatNum {
 			return stateSuccess, fmt.Sprintf("%s is less than %s", stat, comparisonStat), nil
 		} else if statNum == prevStatNum {
 			return stateSuccess, fmt.Sprintf("%s is same as %s", stat, comparisonStat), nil
@@ -63,7 +63,7 @@ func compareStats(stat, comparisonStat, goal string) (state, string, error) {
 			return stateFailure, fmt.Sprintf("%s is more than %s", stat, comparisonStat), nil
 		}
 	} else if goal == "increase" {
-		if statNum >= prevStatNum {
+		if statNum > prevStatNum {
 			return stateSuccess, fmt.Sprintf("%s is more than %s", stat, comparisonStat), nil
 		} else if statNum == prevStatNum {
 			return stateSuccess, fmt.Sprintf("%s is same as %s", stat, comparisonStat), nil
