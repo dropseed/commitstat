@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/dropseed/commitstat/internal/parse"
 	commitstatStatus "github.com/dropseed/commitstat/internal/status"
 )
 
@@ -42,7 +43,7 @@ func FetchRefStat(repo, ref, statName, apiToken string) (string, error) {
 
 	for _, status := range refStatus.Statuses {
 		if status.Context == context {
-			return commitstatStatus.ParseStatFromDescription(status.Description), nil
+			return parse.ParseStatFromDescription(status.Description), nil
 		}
 	}
 

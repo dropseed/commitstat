@@ -3,8 +3,8 @@ package status
 import (
 	"errors"
 	"fmt"
-	"regexp"
-	"strconv"
+
+	"github.com/dropseed/commitstat/internal/parse"
 )
 
 type state string
@@ -44,12 +44,12 @@ func compareStats(stat, comparisonStat, goal string) (state, string, error) {
 		return stateSuccess, fmt.Sprintf("%s is the first value seen", stat), nil
 	}
 
-	statNum, err := parseStatNumber(stat)
+	statNum, err := parse.ParseStatNumber(stat)
 	if err != nil {
 		return stateError, "unable to parse stat", err
 	}
 
-	prevStatNum, err := parseStatNumber(comparisonStat)
+	prevStatNum, err := parse.ParseStatNumber(comparisonStat)
 	if err != nil {
 		return stateError, "unable to parse comparison stat", err
 	}
@@ -73,22 +73,4 @@ func compareStats(stat, comparisonStat, goal string) (state, string, error) {
 	} else {
 		return stateError, "unknown goal", errors.New("unknown goal")
 	}
-}
-
-func parseStatNumber(s string) (float64, error) {
-	if num, err := strconv.ParseFloat(s, 32); err == nil {
-		return num, nil
-	} else {
-		return 0.0, err
-	}
-}
-
-// ParseStatFromDescription expects the stat to be the first part of the string and could have a %, mb, or something directly after it
-func ParseStatFromDescription(text string) string {
-	re := regexp.MustCompile("^[\\d\\.]+\\S*")
-	matches := re.FindAllString(text, 1)
-	if len(matches) == 1 {
-		return matches[0]
-	}
-	return ""
 }
