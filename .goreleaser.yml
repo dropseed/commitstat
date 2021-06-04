@@ -1,0 +1,29 @@
+project_name: commitstat
+release:
+  github:
+    owner: dropseed
+    name: commitstat
+builds:
+- goos:
+  - linux
+  - darwin
+  goarch:
+  - amd64
+  - "386"
+  - arm64
+  goarm:
+  - "6"
+  main: ./cmd/commitstat
+  ldflags: -s -w -X github.com/dropseed/commitstat/internal/version.version={{.Version}} -X github.com/dropseed/commitstat/internal/version.commit={{.Commit}} -X github.com/dropseed/commitstat/internal/version.date={{.Date}}
+  binary: commitstat
+  env:
+  - CGO_ENABLED=0
+archives:
+  - format: tar.gz
+    name_template: '{{ .Binary }}_{{.Version}}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{
+      .Arm }}{{ end }}'
+    files:
+    - LICENSE*
+    - README*
+snapshot:
+  name_template: SNAPSHOT-{{ .Commit }}
