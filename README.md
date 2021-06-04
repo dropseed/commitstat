@@ -11,3 +11,36 @@ $ commitstat coverage-report.txt --regex "\| Total\s*\|\s*([\d\.]+%)" --goal inc
 ```console
 $ stat -f %z app.zip | commitstat - --name app-size
 ```
+
+## Quick install
+
+```console
+$ curl https://raw.githubusercontent.com/dropseed/commitstat/master/install.sh | bash -s -- -b $HOME/bin
+```
+
+## GitHub Action
+
+```yml
+name: commitstat
+
+on:
+  pull_request:
+    types: [synchronize]
+
+jobs:
+  commitstat:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      # Run your tests, generate coverage files, etc.
+
+      - name: Install commitstat
+        run: curl https://raw.githubusercontent.com/dropseed/commitstat/master/install.sh | bash -s -- -b $HOME/bin
+
+      - name: Run commitstat
+        run: $HOME/bin/commitstat coverage-report.txt --regex "\| Total\s*\|\s*([\d\.]+%)" --goal increase --name coverage
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
