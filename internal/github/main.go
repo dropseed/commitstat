@@ -23,13 +23,14 @@ type githubRefStatus struct {
 }
 
 func FetchRefStat(repo, ref, statName, apiToken string) (string, error) {
-	resp, body, err := request("GET", fmt.Sprintf("/repos/%s/commits/%s/status", repo, ref), nil, apiToken)
+	statusURL := fmt.Sprintf("/repos/%s/commits/%s/status", repo, ref)
+	resp, body, err := request("GET", statusURL, nil, apiToken)
 	if err != nil {
 		return "", err
 	}
 
 	if resp.StatusCode != 200 {
-		return "", fmt.Errorf("ref status API returned HTTP %d", resp.StatusCode)
+		return "", fmt.Errorf("%s returned HTTP %d", statusURL, resp.StatusCode)
 	}
 
 	var refStatus githubRefStatus
@@ -58,13 +59,14 @@ func SubmitStatus(repo, sha, statName string, status *commitstatStatus.Status, a
 		Context:     "commitstat/" + statName,
 	}
 	githubStatusJSON, _ := json.Marshal(githubStatus)
-	resp, _, err := request("POST", fmt.Sprintf("/repos/%s/statuses/%s", repo, sha), githubStatusJSON, apiToken)
+	statusesURL := fmt.Sprintf("/repos/%s/statuses/%s", repo, sha)
+	resp, _, err := request("POST", statusesURL, githubStatusJSON, apiToken)
 	if err != nil {
 		return err
 	}
 
 	if resp.StatusCode != 201 {
-		return fmt.Errorf("create status API returned HTTP %d", resp.StatusCode)
+		return fmt.Errorf("%s returned HTTP %d", statusesURL, resp.StatusCode)
 	}
 
 	return nil
