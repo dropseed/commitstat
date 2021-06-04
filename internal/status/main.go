@@ -56,19 +56,19 @@ func compareStats(stat, comparisonStat, goal string) (state, string, error) {
 
 	if goal == "decrease" {
 		if statNum < prevStatNum {
-			return stateSuccess, fmt.Sprintf("%s is less than %s", stat, comparisonStat), nil
+			return stateSuccess, fmt.Sprintf("%s - less than %s", stat, comparisonStat), nil
 		} else if statNum == prevStatNum {
-			return stateSuccess, fmt.Sprintf("%s is same as %s", stat, comparisonStat), nil
+			return stateSuccess, fmt.Sprintf("%s - no change", stat), nil
 		} else {
-			return stateFailure, fmt.Sprintf("%s is more than %s", stat, comparisonStat), nil
+			return stateFailure, fmt.Sprintf("%s - more than %s", stat, comparisonStat), nil
 		}
 	} else if goal == "increase" {
 		if statNum > prevStatNum {
-			return stateSuccess, fmt.Sprintf("%s is more than %s", stat, comparisonStat), nil
+			return stateSuccess, fmt.Sprintf("%s - more than %s", stat, comparisonStat), nil
 		} else if statNum == prevStatNum {
-			return stateSuccess, fmt.Sprintf("%s is same as %s", stat, comparisonStat), nil
+			return stateSuccess, fmt.Sprintf("%s - no change", stat), nil
 		} else {
-			return stateFailure, fmt.Sprintf("%s is less than %s", stat, comparisonStat), nil
+			return stateFailure, fmt.Sprintf("%s - less than %s", stat, comparisonStat), nil
 		}
 	} else {
 		return stateError, "unknown goal", errors.New("unknown goal")
