@@ -27,12 +27,6 @@ var rootCmd = &cobra.Command{
 		if len(args) != 1 {
 			return errors.New("arg should be a path or \"-\" to read from stdin")
 		}
-
-		stat, _ := os.Stdin.Stat()
-		if args[0] != "-" && (stat.Mode()&os.ModeCharDevice) == 0 {
-			return errors.New("cannot read from a file and stdin at the same time")
-		}
-
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
