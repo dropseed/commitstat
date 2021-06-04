@@ -38,8 +38,10 @@ func FetchRefStat(repo, ref, statName, apiToken string) (string, error) {
 		return "", err
 	}
 
+	context := githubContextForStatName(statName)
+
 	for _, status := range refStatus.Statuses {
-		if status.Context == statName {
+		if status.Context == context {
 			return commitstatStatus.ParseStatFromDescription(status.Description), nil
 		}
 	}
@@ -56,7 +58,7 @@ func SubmitStatus(repo, sha, statName string, status *commitstatStatus.Status, a
 		State:       string(status.State),
 		Description: status.Description,
 		TargetURL:   targetURL,
-		Context:     "commitstat/" + statName,
+		Context:     githubContextForStatName(statName),
 	}
 	githubStatusJSON, _ := json.Marshal(githubStatus)
 	statusesURL := fmt.Sprintf("/repos/%s/statuses/%s", repo, sha)
@@ -70,6 +72,10 @@ func SubmitStatus(repo, sha, statName string, status *commitstatStatus.Status, a
 	}
 
 	return nil
+}
+
+func githubContextForStatName(statName string) string {
+	return "commitstat/" + statName
 }
 
 func request(verb string, url string, input []byte, apiToken string) (*http.Response, string, error) {
