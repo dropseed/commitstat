@@ -20,15 +20,15 @@ $ curl https://raw.githubusercontent.com/dropseed/commitstat/master/install.sh |
 
 ## GitHub Action
 
-```yml
-name: commitstat
+You can run commitstat right after your tests and once you have some sort of stat to parse.
 
-on:
-  pull_request:
-    types: [synchronize]
+```yml
+name: test
+
+on: [push]
 
 jobs:
-  commitstat:
+  test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

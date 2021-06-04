@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"os/exec"
 	"strings"
 
 	"github.com/dropseed/commitstat/internal/github"
@@ -59,25 +58,24 @@ var rootCmd = &cobra.Command{
 		fmt.Printf("Parsed stat value: %s\n", stat)
 
 		if os.Getenv("GITHUB_ACTIONS") != "" {
+			if event := os.Getenv("GITHUB_EVENT_NAME"); event != "push" {
+				println("Stat comparisons are only made for \"push\" events")
+				return
+			}
+
 			githubToken := os.Getenv("GITHUB_TOKEN")
 			if githubToken == "" {
 				printErrAndExitFailure(errors.New("GITHUB_TOKEN is required to submit stats"))
-			}
-
-			comparisonRef := ""
-
-			if branch := os.Getenv("GITHUB_BASE_REF"); branch != "" {
-				fmt.Printf("Fetching comparision stat from %s\n", branch)
-				comparisonRef = branch
-			} else {
-				println("Fetching comparison stat from previous commit")
-				comparisonRef = gitPreviousSHA()
 			}
 
 			repo := os.Getenv("GITHUB_REPOSITORY")
 			if repo == "" {
 				printErrAndExitFailure(errors.New("GITHUB_REPOSITORY is required"))
 			}
+
+			pushEvent := github.NewGitHubPushEvent(os.Getenv("GITHUB_EVENT_PATH"))
+			comparisonRef := pushEvent.GetComparisonRef()
+			fmt.Printf("Fetching comparision stat from %s\n", comparisonRef)
 
 			comparisonStat, err := github.FetchRefStat(repo, comparisonRef, statName, githubToken)
 			if err != nil {
@@ -105,15 +103,6 @@ var rootCmd = &cobra.Command{
 			println("Run in GitHub Actions to create commit statuses")
 		}
 	},
-}
-
-func gitPreviousSHA() string {
-	cmd := exec.Command("git", "rev-parse", "HEAD^1")
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		return ""
-	}
-	return string(out)
 }
 
 func init() {
