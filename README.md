@@ -21,6 +21,8 @@ There aren't any visualization tools built-in but you can always store artifacts
 
 ## Quick install
 
+You can install commitstat locally to test your parsing patterns, but commit statuses will only be created when run in CI.
+
 ```console
 $ curl https://raw.githubusercontent.com/dropseed/commitstat/master/install.sh | bash -s -- -b $HOME/bin
 ```
@@ -54,7 +56,7 @@ jobs:
 
 ## Example uses
 
-### mypy
+### [mypy](http://mypy-lang.org/)
 
 Parse the mypy imprecision text report (lower number is better).
 
@@ -63,7 +65,7 @@ $ mypy src --ignore-missing-imports --no-incremental --txt-report ./.reports/myp
 $ commitstat .reports/mypy/index.txt --regex "\| Total\s*\|\s*([\d\.]+%)" --goal decrease --name mypy
 ```
 
-### pytest with pytest-cov
+### [pytest](https://docs.pytest.org/en/latest/) with [pytest-cov](https://github.com/pytest-dev/pytest-cov)
 
 Parse the pytest-cov default HTML report for the total coverage percentage.
 
