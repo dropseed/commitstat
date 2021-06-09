@@ -44,3 +44,23 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
+
+## Example uses
+
+### mypy
+
+Parse the mypy imprecision text report (lower number is better).
+
+```console
+$ mypy src --ignore-missing-imports --no-incremental --txt-report ./.reports/mypy
+$ commitstat .reports/mypy/index.txt --regex "\| Total\s*\|\s*([\d\.]+%)" --goal decrease --name mypy
+```
+
+### pytest with pytest-cov
+
+Parse the pytest-cov default HTML report for the total coverage percentage.
+
+```console
+$ pytest --cov=src --cov-report=html:.reports/src/pytest src
+$ commitstat .reports/pytest/index.html --regex "<span class=\"pc_cov\">(\d+%)<\/span>" --goal increase --name pytest
+```
