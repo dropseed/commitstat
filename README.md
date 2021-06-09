@@ -59,20 +59,29 @@ jobs:
 
 ## Example uses
 
-### [mypy](http://mypy-lang.org/)
+### mypy
 
-Parse the mypy imprecision text report (lower number is better).
+Parse the [mypy](https://mypy.readthedocs.io/en/stable/command_line.html#report-generation) imprecision text report (lower number is better).
 
 ```console
 $ mypy src --ignore-missing-imports --no-incremental --txt-report ./.reports/mypy
 $ commitstat .reports/mypy/index.txt --regex "\| Total\s*\|\s*([\d\.]+%)" --goal decrease --name mypy
 ```
 
-### [pytest](https://docs.pytest.org/en/latest/) with [pytest-cov](https://github.com/pytest-dev/pytest-cov)
+### pytest-cov
 
-Parse the pytest-cov default HTML report for the total coverage percentage.
+Parse the [pytest-cov](https://github.com/pytest-dev/pytest-cov) default HTML report for the total coverage percentage.
 
 ```console
 $ pytest --cov=src --cov-report=html:.reports/src/pytest src
 $ commitstat .reports/pytest/index.html --regex "<span class=\"pc_cov\">(\d+%)<\/span>" --goal increase --name pytest
+```
+
+### Go test coverage
+
+Parse total test coverage from the [built-in go coverage tool](https://blog.golang.org/cover).
+
+```console
+$ go test ./... -coverprofile=coverage.out
+$ go tool cover -func coverage.out | commitstat - --regex "total:\s+\(statements\)\s+([\d\.]+%)" --name coverage
 ```
