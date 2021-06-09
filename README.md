@@ -16,7 +16,7 @@ This is a lightweight alternative to hosted services like [Codecov](https://abou
 All of the data that commitstat uses is stored directly in the GitHub commit status and doesn't involve any third-party services or hosting.
 There aren't any visualization tools built-in but you can always store artifacts in your CI provider or look at coverage reports locally.
 
-![commitstat-example](https://user-images.githubusercontent.com/649496/121426939-c166f100-c939-11eb-8061-f97cf0f10407.png)
+![commitstat pull request example](https://user-images.githubusercontent.com/649496/121426939-c166f100-c939-11eb-8061-f97cf0f10407.png)
 
 ## Quick install
 
@@ -30,13 +30,13 @@ $ curl https://raw.githubusercontent.com/dropseed/commitstat/master/install.sh |
 
 ### `--goal`
 
-Either "increase" or "decrease". This is the direction you *want* the stat to go. For example, test coverage should "increase" and if it actually decreases, then a failling status will be report. If the stat is new or doesn't change, it is considered successful.
+Either "increase" or "decrease". This is the direction you *want* the stat to go. For example, test coverage should "increase" and if it actually decreases, then a failling status will be reported. If the stat is new or doesn't change, it is considered successful.
 
 ### `--name`
 
 The name of the stat.
 Will show up as `commitstat/{name}` when submitted as a GitHub commit status.
-Changing the name for an existing stat will break the comparison feature until the new name shows up on your main/master branch.
+Changing the name for an existing stat will break the pass/fail comparison until the new name shows up on your main/master branch.
 
 ### `--regex` (optional)
 
@@ -49,7 +49,7 @@ By default commitstat assumes the input is simply a number and a regex isn't nee
 ## GitHub Action
 
 You can run commitstat right after your tests and once you have some sort of stat to parse.
-You can report as many stats as you want -- just give them different names.
+Use different names to report multiple stats per commit.
 
 ```yml
 name: test
@@ -102,3 +102,12 @@ Parse total test coverage from the [built-in go coverage tool](https://blog.gola
 $ go test ./... -coverprofile=coverage.out
 $ go tool cover -func coverage.out | commitstat - --regex "total:\s+\(statements\)\s+([\d\.]+%)" --goal increase --name coverage
 ```
+
+## How it works
+
+Stats are stored directly in GitHub through the commit status API.
+The stat is always the first number in the description which makes it easy to parse.
+
+<!-- https://excalidraw.com/#json=5675361668956160,KJvEUJXgl5Sw7CV39_-04w -->
+
+![commitstat git](https://user-images.githubusercontent.com/649496/121432738-a9df3680-c940-11eb-9a4f-a5be6e3fb05b.png)
