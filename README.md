@@ -5,8 +5,6 @@ It can parse a stat from a file or stdin,
 check whether the number has increased or decreased from the previous commit or main branch,
 and then report a pass/fail status on GitHub.
 
-Can be used to check test coverage, typing coverage, file sizes, and more.
-
 ```console
 $ commitstat coverage-report.txt --regex "\| Total\s*\|\s*([\d\.]+%)" --goal increase --name coverage
 ```
@@ -15,9 +13,14 @@ $ commitstat coverage-report.txt --regex "\| Total\s*\|\s*([\d\.]+%)" --goal inc
 $ stat -f %z app.zip | commitstat - --name app-size
 ```
 
+Can be used to check test coverage, typing coverage, file sizes, and more.
+The status can be purely informative, or be set as a required status check (via GitHub branch protection) to ensure that something like test coverage doesn't get worse because of a pull request.
+
 This is a lightweight alternative to hosted services like [Codecov](https://about.codecov.io/) and [Coveralls](https://coveralls.io/).
 All of the data that commitstat uses is stored directly in the GitHub commit status and doesn't involve any third-party services or hosting.
 There aren't any visualization tools built-in but you can always store artifacts in your CI provider or look at coverage reports locally.
+
+![commitstat-example](https://user-images.githubusercontent.com/649496/121426939-c166f100-c939-11eb-8061-f97cf0f10407.png)
 
 ## Quick install
 
