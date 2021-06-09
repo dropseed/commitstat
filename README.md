@@ -1,6 +1,9 @@
 # commitstat
 
-A CI tool for reporting and comparing stats on commits. It can parse a stat from a file or stdin, check whether the number has increased or decreased, and then report a pass/fail status.
+A CI tool for reporting and comparing stats on commits and pull requests.
+It can parse a stat from a file or stdin,
+check whether the number has increased or decreased from the previous commit or main branch,
+and then report a pass/fail status on GitHub.
 
 Can be used to check test coverage, typing coverage, file sizes, and more.
 
@@ -11,6 +14,10 @@ $ commitstat coverage-report.txt --regex "\| Total\s*\|\s*([\d\.]+%)" --goal inc
 ```console
 $ stat -f %z app.zip | commitstat - --name app-size
 ```
+
+This is a lightweight alternative to hosted services like [Codecov](https://about.codecov.io/) and [Coveralls](https://coveralls.io/).
+All of the data that commitstat uses is stored directly in the GitHub commit status and doesn't involve any third-party services or hosting.
+There aren't any visualization tools built-in but you can always store artifacts in your CI provider or look at coverage reports locally.
 
 ## Quick install
 
