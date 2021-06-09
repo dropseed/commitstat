@@ -26,6 +26,25 @@ You can install commitstat locally to test your parsing patterns, but commit sta
 $ curl https://raw.githubusercontent.com/dropseed/commitstat/master/install.sh | bash -s -- -b $HOME/bin
 ```
 
+## Options
+
+### `--goal`
+
+Either "increase" or "decrease". This is the direction you *want* the stat to go. For example, test coverage should "increase" and if it actually decreases, then a failling status will be report. If the stat is new or doesn't change, it is considered successful.
+
+### `--name`
+
+Will be prefixed by `commitstat/` when submitted as a GitHub commit status.
+Changing the name for an existing stat will break the comparison feature until the new name shows up on your main/master branch.
+
+### `--regex` (optional)
+
+A regular expression to parse the file/stdin for a specific value.
+There should be exactly one capture group in your regular expression (using parentheses) and you can include extra characters like a percent sign "%".
+The extra characters will simply be removed when comparing the values (ex. "36%" will be interpreted as "36") so be careful not to mix units like "mb" vs "gb" as they won't convert correctly (ex. "1mb" and "1gb" will both be interpreted as "1").
+
+By default commitstat assumes the input is simply a number (ex. `stat -f %z app.zip | commitstat -`).
+
 ## GitHub Action
 
 You can run commitstat right after your tests and once you have some sort of stat to parse.
