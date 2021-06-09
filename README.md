@@ -9,10 +9,6 @@ and then report a pass/fail status on GitHub.
 $ commitstat coverage-report.txt --regex "\| Total\s*\|\s*([\d\.]+%)" --goal increase --name coverage
 ```
 
-```console
-$ stat -f %z app.zip | commitstat - --name app-size
-```
-
 Can be used to check test coverage, typing coverage, file sizes, and more.
 The status can be purely informative, or be set as a required status check (via GitHub branch protection) to ensure that something like test coverage doesn't get worse because of a pull request.
 
@@ -83,5 +79,5 @@ Parse total test coverage from the [built-in go coverage tool](https://blog.gola
 
 ```console
 $ go test ./... -coverprofile=coverage.out
-$ go tool cover -func coverage.out | commitstat - --regex "total:\s+\(statements\)\s+([\d\.]+%)" --name coverage
+$ go tool cover -func coverage.out | commitstat - --regex "total:\s+\(statements\)\s+([\d\.]+%)" --goal increase --name coverage
 ```
