@@ -35,11 +35,11 @@ func NewGitHubPushEvent(path string) *githubPushEvent {
 }
 
 func (event *githubPushEvent) GetComparisonRef() string {
-	defaultRef := "refs/heads/" + event.Repository.DefaultBranch
-	if event.Ref == defaultRef {
+	if event.Ref == "refs/heads/"+event.Repository.DefaultBranch {
 		// This is a push to master/main, so compare stat to previous commit sha
-		return event.Before
+		// (shorten for readability)
+		return event.Before[:7]
 	}
 	// Compare to latest on the default branch
-	return defaultRef
+	return event.Repository.DefaultBranch
 }

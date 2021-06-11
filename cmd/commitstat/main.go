@@ -88,7 +88,7 @@ var rootCmd = &cobra.Command{
 				fmt.Printf("No comparison stat found on %s\n", comparisonRef)
 			}
 
-			status, err := status.NewStatus(stat, comparisonStat, goal)
+			status, err := status.NewStatus(stat, comparisonStat, comparisonRef, goal)
 			if err != nil {
 				printErrAndExitFailure(err)
 			}
