@@ -41,7 +41,7 @@ func compareStats(stat, comparisonStat, goal string) (state, string, error) {
 	// IMPORTANT: the current stat needs to be the first thing in the description
 	// because that's how we will parse it back off
 	if comparisonStat == "" {
-		return stateSuccess, fmt.Sprintf("%s - nothing to compare to", stat), nil
+		return stateError, fmt.Sprintf("%s - nothing to compare to (stat is either new or being processed simultaneously)", stat), nil
 	}
 
 	statNum, err := parse.ParseStatNumber(stat)
