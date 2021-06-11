@@ -42,7 +42,8 @@ Changing the name for an existing stat will break the pass/fail comparison until
 
 A regular expression to parse the file/stdin for a specific value.
 There should be exactly one capture group in your regular expression (using parentheses) and you can include extra characters like a percent sign "%".
-The extra characters will simply be removed when comparing the values (ex. "36%" will be interpreted as "36") so be careful not to mix units like "mb" vs "gb" as they won't convert automatically (ex. "1mb" and "1gb" will both be interpreted as "1").
+The extra characters will simply be removed when comparing the values (ex. "36%" will be interpreted as "36").
+You'll receive an error if you mix units (ex. "1mb" and "1gb").
 
 By default commitstat assumes the input is simply a number and a regex isn't needed (ex. `stat -f %z app.zip | commitstat -`).
 
