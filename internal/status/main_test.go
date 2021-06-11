@@ -63,3 +63,15 @@ func TestCompareIncreaseEqual(t *testing.T) {
 		t.Error(description)
 	}
 }
+func TestCompareDiffUnits(t *testing.T) {
+	state, description, err := compareStats("35mb", "35gb", "master", "increase")
+	if err != nil {
+		t.Error(err)
+	}
+	if state != stateError {
+		t.Error(state)
+	}
+	if description != "Stats are not the same units: mb vs gb" {
+		t.Error(description)
+	}
+}
