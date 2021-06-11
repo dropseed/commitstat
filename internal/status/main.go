@@ -52,7 +52,7 @@ func compareStats(stat, comparisonStat, comparisonRef, goal string) (state, stri
 		if statNum < prevStatNum {
 			return stateSuccess, fmt.Sprintf("%s - less than %s (%s)", stat, comparisonStat, comparisonRef), nil
 		} else if statNum == prevStatNum {
-			return stateSuccess, fmt.Sprintf("%s - no change compared to %s", stat, comparisonRef), nil
+			return stateSuccess, fmt.Sprintf("%s - same as %s", stat, comparisonRef), nil
 		} else {
 			return stateFailure, fmt.Sprintf("%s - more than %s (%s)", stat, comparisonStat, comparisonRef), nil
 		}
@@ -60,7 +60,7 @@ func compareStats(stat, comparisonStat, comparisonRef, goal string) (state, stri
 		if statNum > prevStatNum {
 			return stateSuccess, fmt.Sprintf("%s - more than %s (%s)", stat, comparisonStat, comparisonRef), nil
 		} else if statNum == prevStatNum {
-			return stateSuccess, fmt.Sprintf("%s - no change compared to %s", stat, comparisonRef), nil
+			return stateSuccess, fmt.Sprintf("%s - same as %s", stat, comparisonRef), nil
 		} else {
 			return stateFailure, fmt.Sprintf("%s - less than %s (%s)", stat, comparisonStat, comparisonRef), nil
 		}
