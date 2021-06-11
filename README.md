@@ -16,7 +16,7 @@ This is a lightweight alternative to hosted services like [Codecov](https://abou
 All of the data that commitstat uses is stored directly in the GitHub commit status and doesn't involve any third-party services or hosting.
 There aren't any visualization tools built-in but you can always store artifacts in your CI provider or look at coverage reports locally.
 
-![commitstat pull request example](https://user-images.githubusercontent.com/649496/121426939-c166f100-c939-11eb-8061-f97cf0f10407.png)
+![commitstat on pull request checks](https://user-images.githubusercontent.com/649496/121754532-7df7b880-cada-11eb-8b0a-7457f0bb0ed8.png)
 
 ## Quick install
 
