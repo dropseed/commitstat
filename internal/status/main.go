@@ -3,6 +3,7 @@ package status
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/dropseed/commitstat/internal/parse"
 )
@@ -38,31 +39,39 @@ func compareStats(stat, comparisonStat, comparisonRef, goal string) (state, stri
 		return stateError, fmt.Sprintf("%s - nothing to compare on %s (stat is either new or being processed simultaneously)", comparisonRef, stat), nil
 	}
 
-	statNum, err := parse.ParseStatNumber(stat)
+	statNum, statUnits, err := parse.ParseStatNumber(stat)
 	if err != nil {
-		return stateError, "unable to parse stat", err
+		return stateError, "Unable to parse stat", err
 	}
 
-	prevStatNum, err := parse.ParseStatNumber(comparisonStat)
+	prevStatNum, prevStatUnits, err := parse.ParseStatNumber(comparisonStat)
 	if err != nil {
-		return stateError, fmt.Sprintf("unable to parse comparison stat from %s", comparisonRef), err
+		return stateError, fmt.Sprintf("Unable to parse comparison stat from %s", comparisonRef), err
+	}
+
+	if statUnits != prevStatUnits {
+		return stateError, fmt.Sprintf("Stats are not the same units: %s vs %s", statUnits, prevStatUnits), nil
 	}
 
 	if goal == "decrease" {
 		if statNum < prevStatNum {
-			return stateSuccess, fmt.Sprintf("%s - less than %s (%s)", stat, comparisonStat, comparisonRef), nil
+			diff := strings.TrimRight(fmt.Sprintf("%f", prevStatNum-statNum), ".0")
+			return stateSuccess, fmt.Sprintf("%s - decreased by %s%s (%s on %s)", stat, diff, statUnits, comparisonStat, comparisonRef), nil
 		} else if statNum == prevStatNum {
 			return stateSuccess, fmt.Sprintf("%s - same as %s", stat, comparisonRef), nil
 		} else {
-			return stateFailure, fmt.Sprintf("%s - more than %s (%s)", stat, comparisonStat, comparisonRef), nil
+			diff := strings.TrimRight(fmt.Sprintf("%f", statNum-prevStatNum), ".0")
+			return stateFailure, fmt.Sprintf("%s - increased by %s%s (%s on %s)", stat, diff, statUnits, comparisonStat, comparisonRef), nil
 		}
 	} else if goal == "increase" {
 		if statNum > prevStatNum {
-			return stateSuccess, fmt.Sprintf("%s - more than %s (%s)", stat, comparisonStat, comparisonRef), nil
+			diff := strings.TrimRight(fmt.Sprintf("%f", statNum-prevStatNum), ".0")
+			return stateSuccess, fmt.Sprintf("%s - increased by %s%s (%s on %s)", stat, diff, statUnits, comparisonStat, comparisonRef), nil
 		} else if statNum == prevStatNum {
 			return stateSuccess, fmt.Sprintf("%s - same as %s", stat, comparisonRef), nil
 		} else {
-			return stateFailure, fmt.Sprintf("%s - less than %s (%s)", stat, comparisonStat, comparisonRef), nil
+			diff := strings.TrimRight(fmt.Sprintf("%f", prevStatNum-statNum), ".0")
+			return stateFailure, fmt.Sprintf("%s - decreased by %s%s (%s on %s)", stat, diff, statUnits, comparisonStat, comparisonRef), nil
 		}
 	} else {
 		return stateError, "unknown goal", errors.New("unknown goal")

@@ -20,13 +20,13 @@ func ParseStatFromString(s, regex string) (string, error) {
 	return matches[1], nil
 }
 
-func ParseStatNumber(s string) (float64, error) {
-	re := regexp.MustCompile(`^[\d\.]+`)
-	matches := re.FindAllString(s, 1)
-	if num, err := strconv.ParseFloat(matches[0], 32); err == nil {
-		return num, nil
+func ParseStatNumber(s string) (float64, string, error) {
+	re := regexp.MustCompile(`^([\d\.]+)(\S*)`)
+	matches := re.FindAllStringSubmatch(s, 1)
+	if num, err := strconv.ParseFloat(matches[0][1], 64); err == nil {
+		return num, matches[0][2], nil
 	} else {
-		return 0.0, err
+		return 0.0, "", err
 	}
 }
 
