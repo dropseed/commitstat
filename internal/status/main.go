@@ -36,7 +36,7 @@ func compareStats(stat, comparisonStat, comparisonRef, goal string) (state, stri
 	// IMPORTANT: the current stat needs to be the first thing in the description
 	// because that's how we will parse it back off
 	if comparisonStat == "" {
-		return stateError, fmt.Sprintf("%s - nothing to compare on %s (stat is either new or being processed simultaneously)", comparisonRef, stat), nil
+		return stateError, fmt.Sprintf("%s - nothing to compare on %s (stat is either new or being processed simultaneously)", stat, comparisonRef), nil
 	}
 
 	statNum, statUnits, err := parse.ParseStatNumber(stat)
