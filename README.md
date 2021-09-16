@@ -47,7 +47,7 @@ There should be exactly one capture group in your regular expression (using pare
 The extra characters will simply be removed when comparing the values (ex. "36%" will be interpreted as "36").
 You'll receive an error if you mix units (ex. "1mb" and "1gb").
 
-By default commitstat assumes the input is simply a number and a regex isn't needed (ex. `stat -f %z app.zip | commitstat -`).
+By default commitstat assumes the input is simply a number and a regex isn't needed (ex. `stat --format %s app.zip | commitstat -` on Ubuntu).
 
 ## GitHub Action
 
@@ -104,6 +104,14 @@ Parse total test coverage from the [built-in go coverage tool](https://blog.gola
 ```console
 $ go test ./... -coverprofile=coverage.out
 $ go tool cover -func coverage.out | commitstat - --regex "total:\s+\(statements\)\s+([\d\.]+%)" --goal increase --name coverage
+```
+
+### File sizes
+
+Report the size of a file (in bytes) using `stat` on Ubuntu (note that the options for stat can differ depending on your OS).
+
+```console
+$ stat --format %s app.zip | commitstat -
 ```
 
 ## How it works
