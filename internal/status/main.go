@@ -53,26 +53,37 @@ func compareStats(stat, comparisonStat, comparisonRef, goal string) (state, stri
 		return stateError, fmt.Sprintf("Stats are not the same units: %s vs %s", statUnits, prevStatUnits), nil
 	}
 
+	description := ""
+
+	if statNum > prevStatNum {
+		diff := strings.TrimRight(fmt.Sprintf("%f", statNum-prevStatNum), ".0")
+		description = fmt.Sprintf("%s - increased by %s%s (%s on %s)", stat, diff, statUnits, comparisonStat, comparisonRef)
+	} else if statNum == prevStatNum {
+		description = fmt.Sprintf("%s - same as %s", stat, comparisonRef)
+	} else {
+		diff := strings.TrimRight(fmt.Sprintf("%f", prevStatNum-statNum), ".0")
+		description = fmt.Sprintf("%s - decreased by %s%s (%s on %s)", stat, diff, statUnits, comparisonStat, comparisonRef)
+	}
+
 	if goal == "decrease" {
 		if statNum < prevStatNum {
-			diff := strings.TrimRight(fmt.Sprintf("%f", prevStatNum-statNum), ".0")
-			return stateSuccess, fmt.Sprintf("%s - decreased by %s%s (%s on %s)", stat, diff, statUnits, comparisonStat, comparisonRef), nil
+			return stateSuccess, description, nil
 		} else if statNum == prevStatNum {
-			return stateSuccess, fmt.Sprintf("%s - same as %s", stat, comparisonRef), nil
+			return stateSuccess, description, nil
 		} else {
-			diff := strings.TrimRight(fmt.Sprintf("%f", statNum-prevStatNum), ".0")
-			return stateFailure, fmt.Sprintf("%s - increased by %s%s (%s on %s)", stat, diff, statUnits, comparisonStat, comparisonRef), nil
+			return stateFailure, description, nil
 		}
 	} else if goal == "increase" {
 		if statNum > prevStatNum {
-			diff := strings.TrimRight(fmt.Sprintf("%f", statNum-prevStatNum), ".0")
-			return stateSuccess, fmt.Sprintf("%s - increased by %s%s (%s on %s)", stat, diff, statUnits, comparisonStat, comparisonRef), nil
+			return stateSuccess, description, nil
 		} else if statNum == prevStatNum {
-			return stateSuccess, fmt.Sprintf("%s - same as %s", stat, comparisonRef), nil
+			return stateSuccess, description, nil
 		} else {
-			diff := strings.TrimRight(fmt.Sprintf("%f", prevStatNum-statNum), ".0")
-			return stateFailure, fmt.Sprintf("%s - decreased by %s%s (%s on %s)", stat, diff, statUnits, comparisonStat, comparisonRef), nil
+			return stateFailure, description, nil
 		}
+	} else if goal == "" {
+		// Always success if there was no stated goal
+		return stateSuccess, description, nil
 	} else {
 		return stateError, "unknown goal", errors.New("unknown goal")
 	}

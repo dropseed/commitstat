@@ -28,15 +28,17 @@ $ curl https://raw.githubusercontent.com/dropseed/commitstat/master/install.sh |
 
 ## Options
 
-### `--goal`
-
-Either "increase" or "decrease". This is the direction you *want* the stat to go. For example, test coverage should "increase" and if it actually decreases, then a failling status will be reported. If the stat is new or doesn't change, it is considered successful.
-
 ### `--name`
 
 The name of the stat.
 Will show up as `commitstat/{name}` when submitted as a GitHub commit status.
 Changing the name for an existing stat will break the pass/fail comparison until the new name shows up on your main/master branch.
+
+### `--goal` (optional)
+
+Either "increase" or "decrease". This is the direction you *want* the stat to go. For example, test coverage should "increase" and if it actually decreases, then a failling status will be reported. If the stat is new or doesn't change, it is considered successful.
+
+If you don't specify a goal, then you'll get a successful status and the stat/change will be purely informational.
 
 ### `--regex` (optional)
 

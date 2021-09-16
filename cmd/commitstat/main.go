@@ -107,10 +107,9 @@ var rootCmd = &cobra.Command{
 
 func init() {
 	rootCmd.Flags().StringVar(&regex, "regex", "", "regex to parse the stat (optional)")
+	rootCmd.Flags().StringVar(&goal, "goal", "", "goal for the stat (\"increase\" or \"decrease\", optional)")
 	rootCmd.Flags().StringVar(&statName, "name", "", "name for the stat")
 	rootCmd.MarkFlagRequired("name")
-	rootCmd.Flags().StringVar(&goal, "goal", "", "goal for the stat (\"increase\" or \"decrease\")")
-	rootCmd.MarkFlagRequired("goal")
 }
 
 func printErrAndExitFailure(err error) {
