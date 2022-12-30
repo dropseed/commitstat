@@ -23,7 +23,7 @@ There aren't any visualization tools built-in but you can always store artifacts
 You can install commitstat locally to test your parsing patterns, but commit statuses will only be created when run in CI.
 
 ```console
-$ curl https://raw.githubusercontent.com/dropseed/commitstat/master/install.sh | bash -s -- -b $HOME/bin
+pipx install commitstat
 ```
 
 ## Options

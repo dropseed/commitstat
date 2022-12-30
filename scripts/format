@@ -1,0 +1,3 @@
+#!/bin/sh -e
+black commitstat
+ruff commitstat --fix-only

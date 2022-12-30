@@ -1,2 +1,2 @@
 #!/bin/sh -ex
-go mod download
+POETRY_VENV_IN_PROJECT=1 poetry install

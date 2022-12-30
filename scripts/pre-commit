@@ -1,2 +1,3 @@
 #!/bin/sh -e
-./scripts/test
+black --check commitstat
+ruff commitstat
