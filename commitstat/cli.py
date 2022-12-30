@@ -1,6 +1,7 @@
 import subprocess
 import click
 from .core import Stats
+from .config import Config
 
 
 @click.group()
@@ -9,12 +10,37 @@ def cli():
 
 
 @cli.command()
-@click.option("--key", "-k", required=True)
-@click.option("--value", "-v", required=True)  # value as arg so it's pipeable?
+@click.option("--key", "-k", "keys", default=[], multiple=True)
 @click.option("--commitish", default="HEAD")
 @click.option("--quiet", "-q", is_flag=True)
-def save(key, value, commitish, quiet):
-    Stats().save(key=key, value=value, commitish=commitish, quiet=quiet)
+def save(keys, commitish, quiet):
+    """Save a stat for a commit"""
+    config = Config.load_yaml()
+    if not keys:
+        keys = config.stats_keys()
+
+    stats = Stats()
+
+    for key in keys:
+        try:
+            command = config.command_for_stat(key)
+        except KeyError:
+            click.secho(f"Unknown stat key: {key}", fg="red")
+            exit(1)
+
+        click.echo(f"Generating value for {key}: ", nl=False)
+        value = subprocess.check_output(command, shell=True).decode("utf-8").strip()
+        if value:
+            click.secho(str(value), fg="green")
+            stats.save(key=key, value=value, commitish=commitish)
+        else:
+            click.secho(f"Skipping empty value for {key}", fg="yellow")
+
+    if not quiet:
+        click.secho(f"\nStats for {commitish}:", bold=True)
+        stats.show(commitish)
+
+    # TODO if CI and stat config has a "goal", then create github status?
 
 
 @cli.command(
@@ -23,14 +49,15 @@ def save(key, value, commitish, quiet):
     )
 )
 @click.option("--key", "-k", "keys", default=[], multiple=True)
-@click.option("--default-value", "-d", default="0")
 @click.option("--summarize", "-s", is_flag=True)
 @click.option("--values-only", is_flag=True)
 @click.argument("git_log_args", nargs=-1, type=click.UNPROCESSED)
-def log(keys, default_value, values_only, summarize, git_log_args):
+def log(keys, values_only, summarize, git_log_args):
+    """Log stats for commits matching git log args"""
+    config = Config.load_yaml()
     Stats().log(
         keys=keys,
-        default_value=default_value,
+        config=config,
         values_only=values_only,
         summarize=summarize,
         git_log_args=list(git_log_args),
@@ -40,6 +67,7 @@ def log(keys, default_value, values_only, summarize, git_log_args):
 @cli.command()
 @click.argument("commitish", default="HEAD")
 def show(commitish):
+    """Show stats for a commit"""
     try:
         Stats().show(commitish)
     except subprocess.CalledProcessError as e:
@@ -48,11 +76,17 @@ def show(commitish):
 
 @cli.command()
 def push():
-    Stats().push()
+    """Push stats to remote"""
+    try:
+        Stats().push()
+    except subprocess.CalledProcessError as e:
+        click.secho("\nHave you created any stats yet?", fg="yellow")
+        exit(e.returncode)
 
 
 @cli.command()
 def fetch():
+    """Fetch stats from remote"""
     Stats().fetch()
 
 
@@ -61,10 +95,10 @@ def fetch():
         ignore_unknown_options=True,
     )
 )
-@click.option("--key", "-k", required=True)
-@click.option("--command", "-c", required=True)
+@click.option("--key", "-k", "keys", default=[], multiple=True)
 @click.argument("git_log_args", nargs=-1, type=click.UNPROCESSED)
-def regen(key, command, git_log_args):
+def regen(keys, git_log_args):
+    """Regenerate stats for all commits matching git log args"""
     current_branch = (
         subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"])
         .decode("utf-8")
@@ -82,24 +116,37 @@ def regen(key, command, git_log_args):
 
     commits = output.splitlines()
 
+    config = Config.load_yaml()
+    if not keys:
+        keys = config.stats_keys()
+
     if not click.prompt(
-        f'Regenerate "{key}" stat for {len(commits)} commits?', default=True
+        f"Regenerate {list(keys)} stats for {len(commits)} commits?", default=True
     ):
         exit(1)
 
     try:
-        with click.progressbar(commits, show_pos=True, show_eta=True) as items:
+        with click.progressbar(
+            commits, show_pos=True, show_eta=True, label="Commits"
+        ) as items:
             for commit in items:
+                # TODO --missing-only option to only fill in
+                # blanks (skip checkout etc. if nothing needed)
+
                 subprocess.check_call(
                     ["git", "checkout", commit],
                     stderr=subprocess.DEVNULL,
                     stdout=subprocess.DEVNULL,
                 )
 
-                value = (
-                    subprocess.check_output(command, shell=True).decode("utf-8").strip()
-                )
-                Stats().save(key=key, value=value, commitish=commit, quiet=True)
+                for key in keys:
+                    command = config.command_for_stat(key)
+                    value = (
+                        subprocess.check_output(command, shell=True)
+                        .decode("utf-8")
+                        .strip()
+                    )
+                    Stats().save(key=key, value=value, commitish=commit)
     finally:
         # Make sure we reset to the ref where we started
         subprocess.check_call(
@@ -110,10 +157,37 @@ def regen(key, command, git_log_args):
 
 
 @cli.command()
-@click.option("--key", "-k", default="")
+@click.option("--key", "-k", "keys", default=[], multiple=True)
 @click.option("--commitish", default="HEAD")
-def delete(key, commitish):
-    Stats().delete(key, commitish)
+def delete(keys, commitish):
+    """Delete a single stat"""
+    config = Config.load_yaml()
+    if not keys:
+        keys = config.stats_keys()
+
+    stats = Stats()
+    for key in keys:
+        stats.delete(key, commitish)
+
+    try:
+        stats.show(commitish)
+    except subprocess.CalledProcessError:
+        # Stats probably all deleted
+        pass
+
+
+@cli.command()
+@click.option("--remote", is_flag=True)
+def clear(remote):
+    """Delete all existing stats"""
+    click.confirm("Are you sure you want to clear all existing stats?", abort=True)
+
+    Stats().clear(remote=remote)
+
+    if remote:
+        click.secho("Remote stats cleared", fg="green")
+    else:
+        click.secho("Local stats cleared", fg="green")
 
 
 if __name__ == "__main__":

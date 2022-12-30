@@ -13,6 +13,7 @@ git-stats = "commitstat:cli.cli"
 python = "^3.10"
 click = ">=8.0.0"
 requests = "*"
+pyyaml = "^6.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^22.12.0"
