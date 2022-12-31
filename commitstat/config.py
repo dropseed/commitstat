@@ -23,5 +23,8 @@ class Config:
     def command_for_stat(self, key):
         return self.stats[key]["run"]
 
+    def type_for_stat(self, key):
+        return self.stats[key].get("type", "number")
+
     def default_for_stat(self, key):
         return self.stats[key].get("default", 0)

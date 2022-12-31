@@ -98,11 +98,9 @@ $ git stats regen -n 50
 
 ## Sparklines
 
-Some reporting/charting tools will likely be built-in (and integrated w/ GitHub Actions),
-but for now you can pipe output to something like [spark](https://github.com/holman/spark):
-
 ```console
 $ git stats fetch
-$ git stats log --key todos --values-only -n 50 --reverse | spark
+$ git stats log --key todos --values-only -n 50 --reverse --format sparklines
+todos (min 0, max 43, avg 25.4)
 ▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▇▇▇███████████████████████████████
 ```

@@ -90,6 +90,17 @@ files = [
 ]
 
 [[package]]
+name = "future"
+version = "0.18.2"
+description = "Clean single-source support for Python 3 and 2"
+category = "main"
+optional = false
+python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
+files = [
+    {file = "future-0.18.2.tar.gz", hash = "sha256:b1bead90b70cf6ec3f0710ae53a525360fa360d306a86583adc6bf83a4db537d"},
+]
+
+[[package]]
 name = "idna"
 version = "3.4"
 description = "Internationalized Domain Names in Applications (IDNA)"
@@ -240,6 +251,20 @@ files = [
 ]
 
 [[package]]
+name = "sparklines"
+version = "0.4.2"
+description = "Generate sparklines for numbers using Unicode characters only."
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "sparklines-0.4.2.tar.gz", hash = "sha256:7c33fd6dc8b277b1fd729b31428df58a785c68be58202f439128e815f1dcae88"},
+]
+
+[package.dependencies]
+future = "*"
+
+[[package]]
 name = "tomli"
 version = "2.0.1"
 description = "A lil' TOML parser"
@@ -271,4 +296,4 @@ socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "b633c6964a7e472a3d990eaaae513604b43f28e1ec2af4b2b6b877c01743043a"
+content-hash = "ff341deea927df0e43e2ea4574a3c2a7098c94ff368e78cfa55a94ba8154359c"

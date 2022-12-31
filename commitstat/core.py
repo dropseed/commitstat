@@ -120,7 +120,7 @@ class Stats:
             ["git", "notes", "--ref", self.stats_ref, "show", commitish]
         )
 
-    def log(self, *, keys, config, values_only, summarize, git_log_args=[]):
+    def log(self, *, keys, config, values_only, fmt, git_log_args=[]):
         stats = CommitStats()
 
         output = subprocess.check_output(
@@ -134,6 +134,7 @@ class Stats:
         ).decode("utf-8")
 
         commit = ""
+        keys_in_commit = set()
 
         for line in output.splitlines():
             if commit is None:
@@ -142,7 +143,17 @@ class Stats:
                 continue
 
             if line == "COMMIT":
+                remaining_keys = set(keys) - keys_in_commit
+                for key in remaining_keys:
+                    # Fill empty values
+                    stats.add(
+                        commit=commit,
+                        key=key,
+                        value=config.default_for_stat(key),
+                        type=config.type_for_stat(key),
+                    )
                 commit = None
+                keys_in_commit = set()
                 continue
 
             if not line.strip():
@@ -150,20 +161,32 @@ class Stats:
 
             key, value = line.split(":", 1)
 
-            if key in keys or not keys:
+            if key in keys:
+                keys_in_commit.add(key)
                 stats.add(
                     commit=commit,
                     key=key,
                     value=value,
-                    default_value=config.default_for_stat(key),
+                    type=config.type_for_stat(key),
                 )
 
-        stats.print(values_only=values_only)
+        if fmt == "tsv":
+            stats.print(values_only=values_only, sep="\t")
+        elif fmt == "csv":
+            stats.print(values_only=values_only, sep=",")
+        elif fmt == "sparklines":
+            stats.sparklines()
 
     def push(self):
         subprocess.check_call(["git", "push", "origin", self.stats_ref_path])
 
-    def fetch(self):
-        subprocess.check_call(
-            ["git", "fetch", "origin", f"{self.stats_ref_path}:{self.stats_ref_path}"]
-        )
+    def fetch(self, force=False):
+        args = [
+            "git",
+            "fetch",
+            "origin",
+            f"{self.stats_ref_path}:{self.stats_ref_path}",
+        ]
+        if force:
+            args.append("--force")
+        subprocess.check_call(args)

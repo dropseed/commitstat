@@ -72,17 +72,21 @@ def save(keys, commitish, quiet):
     )
 )
 @click.option("--key", "-k", "keys", default=[], multiple=True)
-@click.option("--summarize", "-s", is_flag=True)
 @click.option("--values-only", is_flag=True)
+@click.option(
+    "--format", "fmt", default="tsv", type=click.Choice(["tsv", "csv", "sparklines"])
+)
 @click.argument("git_log_args", nargs=-1, type=click.UNPROCESSED)
-def log(keys, values_only, summarize, git_log_args):
+def log(keys, values_only, fmt, git_log_args):
     """Log stats for commits matching git log args"""
     config = Config.load_yaml()
+    if not keys:
+        keys = config.stats_keys()
     Stats().log(
         keys=keys,
         config=config,
         values_only=values_only,
-        summarize=summarize,
+        fmt=fmt,
         git_log_args=list(git_log_args),
     )
 
@@ -108,9 +112,10 @@ def push():
 
 
 @cli.command()
-def fetch():
+@click.option("--force", "-f", is_flag=True)
+def fetch(force):
     """Fetch stats from remote"""
-    Stats().fetch()
+    Stats().fetch(force=force)
 
 
 @cli.command(
