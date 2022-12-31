@@ -43,6 +43,7 @@ class Stats:
                     commitish,
                 ],
                 stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
             )
         else:
             message = stat_line
@@ -133,7 +134,7 @@ class Stats:
             ]
         ).decode("utf-8")
 
-        commit = ""
+        commit = False
         keys_in_commit = set()
 
         for line in output.splitlines():
@@ -143,15 +144,17 @@ class Stats:
                 continue
 
             if line == "COMMIT":
-                remaining_keys = set(keys) - keys_in_commit
-                for key in remaining_keys:
-                    # Fill empty values
-                    stats.add(
-                        commit=commit,
-                        key=key,
-                        value=config.default_for_stat(key),
-                        type=config.type_for_stat(key),
-                    )
+                if commit is not False:
+                    # Fill empty values, but not in very first line
+                    remaining_keys = set(keys) - keys_in_commit
+                    for key in remaining_keys:
+                        # Fill empty values
+                        stats.add(
+                            commit=commit,
+                            key=key,
+                            value=config.default_for_stat(key),
+                            type=config.type_for_stat(key),
+                        )
                 commit = None
                 keys_in_commit = set()
                 continue

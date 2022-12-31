@@ -172,11 +172,17 @@ def regen(keys, stash, git_log_args):
                 # TODO --missing-only option to only fill in
                 # blanks (skip checkout etc. if nothing needed)
 
-                subprocess.check_call(
-                    ["git", "checkout", commit],
-                    stderr=subprocess.DEVNULL,
-                    stdout=subprocess.DEVNULL,
-                )
+                try:
+                    subprocess.check_call(
+                        ["git", "checkout", commit],
+                        stderr=subprocess.DEVNULL,
+                        stdout=subprocess.DEVNULL,
+                    )
+                except subprocess.CalledProcessError:
+                    raise Exception(
+                        f"Failed to checkout {commit}... "
+                        + "if you have edited your config, try --stash."
+                    )
 
                 for key in keys:
                     command = config.command_for_stat(key)
