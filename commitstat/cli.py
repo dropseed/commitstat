@@ -34,10 +34,10 @@ def test(keys):
 
 @cli.command()
 @click.option("--key", "-k", "keys", default=[], multiple=True)
-@click.option("--commitish", default="HEAD")
-@click.option("--quiet", "-q", is_flag=True)
-def save(keys, commitish, quiet):
-    """Save a stat for a commit"""
+def save(keys):
+    """Save stat for the current commit"""
+    commitish = "HEAD"
+
     config = Config.load_yaml()
     if not keys:
         keys = config.stats_keys()
@@ -59,9 +59,8 @@ def save(keys, commitish, quiet):
         else:
             click.secho(f"Skipping empty value for {key}", fg="yellow")
 
-    if not quiet:
-        click.secho(f"\nStats for {commitish}:", bold=True)
-        stats.show(commitish)
+    click.secho(f"\nStats for {commitish}:", bold=True)
+    stats.show(commitish)
 
     # TODO if CI and stat config has a "goal", then create github status?
 
