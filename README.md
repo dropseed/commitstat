@@ -49,7 +49,7 @@ stats:
         # Don't need to run the test itself in CI (already ran)
         poetry run coverage -m pytest > /dev/null
       fi
-      poetry run coverage report --data-file .forge/.coverage | tail -n 1 | awk '{print $4}'
+      poetry run coverage report | tail -n 1 | awk '{print $4}'
 ```
 
 To test your stats on your working directory, run:
