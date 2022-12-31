@@ -5,7 +5,7 @@ A lightweight tool to store metrics and stats directly in your git repo as [git 
 The easiest way to install this for yourself or in CI is with [pipx](https://pypa.github.io/pipx/):
 
 ```console
-pipx install git+https://github.com/dropseed/commitstat@git-stats
+$ pipx install git+https://github.com/dropseed/commitstat@git-stats
 ```
 
 The tool is then available as:
@@ -53,7 +53,7 @@ stats:
 To generate stats for a commit, run:
 
 ```console
-git stats save
+$ git stats save
 ```
 
 This saves the stats locally, which you could push with `git stats push`.
@@ -86,7 +86,7 @@ and will want to generate some stats for existing commits.
 To do that, use:
 
 ```console
-git stats regen
+$ git stats regen
 ```
 
 You can specify a key(s) with `git stats regen --key todos`,
@@ -94,7 +94,7 @@ and any additional options will be used to select the commits to regenerate stat
 So, you can regenerate stats for the latest 50 commits with:
 
 ```console
-git stats regen -n 50
+$ git stats regen -n 50
 ```
 
 ## Sparklines
