@@ -135,28 +135,23 @@ class Stats:
         ).decode("utf-8")
 
         commit = False
-        keys_in_commit = set()
 
         for line in output.splitlines():
             if commit is None:
                 commit = line
                 stats.append_commit(commit)
+                # Fill empty values first for all the keys we expect
+                for key in keys:
+                    stats.add(
+                        commit=commit,
+                        key=key,
+                        value=config.default_for_stat(key),
+                        type=config.type_for_stat(key),
+                    )
                 continue
 
             if line == "COMMIT":
-                if commit is not False:
-                    # Fill empty values, but not in very first line
-                    remaining_keys = set(keys) - keys_in_commit
-                    for key in remaining_keys:
-                        # Fill empty values
-                        stats.add(
-                            commit=commit,
-                            key=key,
-                            value=config.default_for_stat(key),
-                            type=config.type_for_stat(key),
-                        )
                 commit = None
-                keys_in_commit = set()
                 continue
 
             if not line.strip():
@@ -165,7 +160,6 @@ class Stats:
             key, value = line.split(":", 1)
 
             if key in keys:
-                keys_in_commit.add(key)
                 stats.add(
                     commit=commit,
                     key=key,
