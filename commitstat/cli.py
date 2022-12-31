@@ -205,14 +205,14 @@ def clear(remote):
 
 @cli.command()
 @click.option("--key", "-k", "keys", default=[], multiple=True)
-@click.option("--git-author", default="github-actions")
+@click.option("--git-name", default="github-actions")
 @click.option("--git-email", default="github-actions@github.com")
 @click.pass_context
-def ci(ctx, keys, git_author, git_email):
+def ci(ctx, keys, git_name, git_email):
     """All-in-one fetch, save, push"""
     click.secho("Setting git user.name and user.email...", fg="cyan")
     subprocess.check_call(
-        ["git", "config", "user.name", git_author],
+        ["git", "config", "user.name", git_name],
     )
     subprocess.check_call(
         ["git", "config", "user.email", git_email],
