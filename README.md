@@ -47,8 +47,49 @@ stats:
       poetry run coverage report --data-file .forge/.coverage | tail -n 1 | awk '{print $4}'
 ```
 
-In CI:
+To generate stats for a commit, run:
+
+```console
+git stats save
+```
+
+This saves the stats locally, which you could push with `git stats push`.
+Typically though you'll run this in CI.
+
+So you can delete your local stats with `git stats delete`,
+and then in GitHub Actions, for example, you can do:
+
+```yaml
+name: test
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    # ...
+    - run: pipx run --spec git+https://github.com/dropseed/commitstat@git-stats git-stats ci
 
 ```
-pipx run --spec git+https://github.com/dropseed/commitstat@git-stats git-stats ci
+
+## Retroactive stats
+
+You're probably introducing this into an existing project,
+and will want to generate some stats for existing commits.
+
+To do that, use:
+
+```console
+git stats regen
+```
+
+You can specify a key(s) with `git stats regen --key todos`,
+and any additional options will be used to select the commits to regenerate stats for (via `git log`).
+So, you can regenerate stats for the latest 50 commits with:
+
+```console
+git stats regen -n 50
 ```
