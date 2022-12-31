@@ -30,6 +30,8 @@ class Stats:
                 edited_stat_lines.append(stat_line)
 
             message = "\n".join(edited_stat_lines)
+            if message.strip() == existing_stats.strip():
+                return
         else:
             message = stat_line
 

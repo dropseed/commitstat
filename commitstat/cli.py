@@ -96,9 +96,17 @@ def fetch():
     )
 )
 @click.option("--key", "-k", "keys", default=[], multiple=True)
+@click.option(
+    "--stash",
+    is_flag=True,
+    help="Stash your local changes after the config is loaded",
+)
 @click.argument("git_log_args", nargs=-1, type=click.UNPROCESSED)
-def regen(keys, git_log_args):
-    """Regenerate stats for all commits matching git log args"""
+def regen(keys, stash, git_log_args):
+    """
+    Regenerate stats for all commits matching git log args
+    (using the config as it existed pre-stash)
+    """
     current_branch = (
         subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"])
         .decode("utf-8")
@@ -124,6 +132,9 @@ def regen(keys, git_log_args):
         f"Regenerate {list(keys)} stats for {len(commits)} commits?", default=True
     ):
         exit(1)
+
+    if stash:
+        subprocess.check_call(["git", "stash"], stdout=subprocess.DEVNULL)
 
     try:
         with click.progressbar(
@@ -154,6 +165,8 @@ def regen(keys, git_log_args):
             stderr=subprocess.DEVNULL,
             stdout=subprocess.DEVNULL,
         )
+        if stash:
+            subprocess.check_call(["git", "stash", "pop"], stdout=subprocess.DEVNULL)
 
 
 @cli.command()
@@ -188,6 +201,21 @@ def clear(remote):
         click.secho("Remote stats cleared", fg="green")
     else:
         click.secho("Local stats cleared", fg="green")
+
+
+@cli.command()
+@click.option("--key", "-k", "keys", default=[], multiple=True)
+@click.pass_context
+def ci(ctx, keys):
+    """All-in-one fetch, save, push"""
+    click.secho("Fetching stats from remote...", fg="cyan")
+    ctx.invoke(fetch)
+
+    click.secho("\nSaving stats...", fg="cyan")
+    ctx.invoke(save, keys=keys)
+
+    click.secho("\nPushing stats to remote...", fg="cyan")
+    ctx.invoke(push)
 
 
 if __name__ == "__main__":
