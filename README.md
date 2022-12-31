@@ -96,3 +96,13 @@ So, you can regenerate stats for the latest 50 commits with:
 ```console
 git stats regen -n 50
 ```
+
+## Sparklines
+
+Some reporting/charting tools will likely be built-in (and integrated w/ GitHub Actions),
+but for now you can pipe output to something like [spark](https://github.com/holman/spark):
+
+```console
+$ git-stats log --key todos --values-only -n 50 --reverse | spark
+▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▇▇▇███████████████████████████████
+```
