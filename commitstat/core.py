@@ -32,6 +32,17 @@ class Stats:
             message = "\n".join(edited_stat_lines)
             if message.strip() == existing_stats.strip():
                 return
+
+            subprocess.check_call(
+                [
+                    "git",
+                    "notes",
+                    "--ref",
+                    self.stats_ref,
+                    "remove",
+                    commitish,
+                ],
+            )
         else:
             message = stat_line
 
@@ -42,13 +53,10 @@ class Stats:
                 "--ref",
                 self.stats_ref,
                 "add",
-                "--force",
                 "--message",
                 message,
                 commitish,
             ],
-            # Don't show the "Overwriting existing notes for commit"
-            stderr=subprocess.DEVNULL,
         )
 
     def delete(self, key, commitish="HEAD"):
@@ -87,8 +95,6 @@ class Stats:
                         "remove",
                         commitish,
                     ],
-                    # Don't show the "Overwriting existing notes for commit"
-                    stderr=subprocess.DEVNULL,
                 )
 
     def clear(self, remote):

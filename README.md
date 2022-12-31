@@ -46,3 +46,9 @@ stats:
       poetry run coverage -m pytest > /dev/null
       poetry run coverage report --data-file .forge/.coverage | tail -n 1 | awk '{print $4}'
 ```
+
+In CI:
+
+```
+pipx run --spec git+https://github.com/dropseed/commitstat@git-stats git-stats ci
+```
