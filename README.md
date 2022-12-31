@@ -43,7 +43,10 @@ stats:
   coverage:
     default: 0%
     run: |
-      poetry run coverage -m pytest > /dev/null
+      if [ "$CI" != "true" ]; then
+        # Don't need to run the test itself in CI (already ran)
+        poetry run coverage -m pytest > /dev/null
+      fi
       poetry run coverage report --data-file .forge/.coverage | tail -n 1 | awk '{print $4}'
 ```
 
