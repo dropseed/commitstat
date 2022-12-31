@@ -42,6 +42,7 @@ class Stats:
                     "remove",
                     commitish,
                 ],
+                stdout=subprocess.DEVNULL,
             )
         else:
             message = stat_line
@@ -163,4 +164,6 @@ class Stats:
         subprocess.check_call(["git", "push", "origin", self.stats_ref_path])
 
     def fetch(self):
-        subprocess.check_call(["git", "fetch", "origin", self.stats_ref_path])
+        subprocess.check_call(
+            ["git", "fetch", "origin", f"{self.stats_ref_path}:{self.stats_ref_path}"]
+        )

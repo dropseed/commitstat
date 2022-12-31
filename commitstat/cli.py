@@ -210,6 +210,7 @@ def clear(remote):
 @click.pass_context
 def ci(ctx, keys, git_name, git_email):
     """All-in-one fetch, save, push"""
+    # TODO pass these to save instead of setting config?
     click.secho("Setting git user.name and user.email...", fg="cyan")
     subprocess.check_call(
         ["git", "config", "user.name", git_name],
