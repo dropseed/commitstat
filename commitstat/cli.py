@@ -11,6 +11,29 @@ def cli():
 
 @cli.command()
 @click.option("--key", "-k", "keys", default=[], multiple=True)
+def test(keys):
+    """Output stats but don't save them"""
+    config = Config.load_yaml()
+    if not keys:
+        keys = config.stats_keys()
+
+    for key in keys:
+        try:
+            command = config.command_for_stat(key)
+        except KeyError:
+            click.secho(f"Unknown stat key: {key}", fg="red")
+            exit(1)
+
+        click.echo(f"Generating value for {key}: ", nl=False)
+        value = subprocess.check_output(command, shell=True).decode("utf-8").strip()
+        if value:
+            click.secho(str(value), fg="green")
+        else:
+            click.secho(f"Skipping empty value for {key}", fg="yellow")
+
+
+@cli.command()
+@click.option("--key", "-k", "keys", default=[], multiple=True)
 @click.option("--commitish", default="HEAD")
 @click.option("--quiet", "-q", is_flag=True)
 def save(keys, commitish, quiet):
