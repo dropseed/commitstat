@@ -1,3 +1,5 @@
+import os
+import sys
 import subprocess
 import click
 from .core import Stats
@@ -189,7 +191,8 @@ def regen(keys, stash, missing_only, git_log_args):
     else:
         prompt = f"Regenerate {list(keys)} stats for {len(commits)} commits?"
 
-    if not click.prompt(prompt, default=True):
+    # Let CI skip this if it can't prompt
+    if not os.isatty(sys.stdin.fileno()) or not click.prompt(prompt, default=True):
         exit(1)
 
     if stash:
