@@ -12,8 +12,8 @@ class CommitStats:
     def append_commit(self, commit):
         self.commits.append(commit)
 
-    def add(self, *, commit, key, value, type):
-        self.stats.setdefault(key, CommitStat(type=type)).add(commit, value)
+    def add_or_update(self, *, commit, key, value, type):
+        self.stats.setdefault(key, CommitStat(type=type)).add_or_update(commit, value)
 
     def print(self, values_only=False, sep="\t"):
         if not values_only:
@@ -40,6 +40,26 @@ class CommitStats:
                 print(s)
             print()
 
+    def get(self, key, commit):
+        return self.stats[key].get(commit)
+
+    def commit_has_stat(self, commit, key):
+        key_exists = key in self.stats
+        commit_has_value = commit in self.stats[key].commit_values
+        return key_exists and commit_has_value
+
+    def commits_missing_stats(self, keys):
+        """Get a list of commits where any of the given stat keys are missing"""
+        commits = []
+
+        for commit in self.commits:
+            for key in keys:
+                if not self.commit_has_stat(commit, key):
+                    commits.append(commit)
+                    break
+
+        return commits
+
 
 class CommitStat:
     """A single stat for multiple commits, stored by commit sha"""
@@ -64,7 +84,7 @@ class CommitStat:
 
         return value
 
-    def add(self, commit, value):
+    def add_or_update(self, commit, value):
         self.commit_values[commit] = self.parse_value(value)
 
     def get(self, commit):

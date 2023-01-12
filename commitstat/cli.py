@@ -10,7 +10,14 @@ def cli():
 
 
 @cli.command()
-@click.option("--key", "-k", "keys", default=[], multiple=True)
+@click.option(
+    "--key",
+    "-k",
+    "keys",
+    default=[],
+    multiple=True,
+    help="Stats to include (all if not specified)",
+)
 def test(keys):
     """Output stats but don't save them"""
     config = Config.load_yaml()
@@ -33,7 +40,14 @@ def test(keys):
 
 
 @cli.command()
-@click.option("--key", "-k", "keys", default=[], multiple=True)
+@click.option(
+    "--key",
+    "-k",
+    "keys",
+    default=[],
+    multiple=True,
+    help="Stats to include (all if not specified)",
+)
 def save(keys):
     """Save stat for the current commit"""
     commitish = "HEAD"
@@ -70,7 +84,14 @@ def save(keys):
         ignore_unknown_options=True,
     )
 )
-@click.option("--key", "-k", "keys", default=[], multiple=True)
+@click.option(
+    "--key",
+    "-k",
+    "keys",
+    default=[],
+    multiple=True,
+    help="Stats to include (all if not specified)",
+)
 @click.option("--values-only", is_flag=True)
 @click.option(
     "--format", "fmt", default="tsv", type=click.Choice(["tsv", "csv", "sparklines"])
@@ -122,14 +143,22 @@ def fetch(force):
         ignore_unknown_options=True,
     )
 )
-@click.option("--key", "-k", "keys", default=[], multiple=True)
+@click.option(
+    "--key",
+    "-k",
+    "keys",
+    default=[],
+    multiple=True,
+    help="Stats to include (all if not specified)",
+)
 @click.option(
     "--stash",
     is_flag=True,
     help="Stash your local changes after the config is loaded",
 )
+@click.option("--missing-only", is_flag=True)
 @click.argument("git_log_args", nargs=-1, type=click.UNPROCESSED)
-def regen(keys, stash, git_log_args):
+def regen(keys, stash, missing_only, git_log_args):
     """
     Regenerate stats for all commits matching git log args
     (using the config as it existed pre-stash)
@@ -140,24 +169,27 @@ def regen(keys, stash, git_log_args):
         .strip()
     )
 
-    args = ["git", "log", "--format=%H"]
-    if git_log_args:
-        args.extend(git_log_args)
-
-    try:
-        output = subprocess.check_output(args).decode("utf-8")
-    except subprocess.CalledProcessError as e:
-        exit(e.returncode)
-
-    commits = output.splitlines()
-
     config = Config.load_yaml()
     if not keys:
         keys = config.stats_keys()
 
-    if not click.prompt(
-        f"Regenerate {list(keys)} stats for {len(commits)} commits?", default=True
-    ):
+    stats = Stats().load(
+        keys=keys, config=config, fill_defaults=False, git_log_args=list(git_log_args)
+    )
+
+    commits = stats.commits
+
+    if missing_only:
+        total_commits = len(commits)
+        commits = stats.commits_missing_stats(keys)
+        prompt = (
+            f"Regenerate {list(keys)} stats for {len(commits)}"
+            + f" of {total_commits} commits?"
+        )
+    else:
+        prompt = f"Regenerate {list(keys)} stats for {len(commits)} commits?"
+
+    if not click.prompt(prompt, default=True):
         exit(1)
 
     if stash:
@@ -184,6 +216,10 @@ def regen(keys, stash, git_log_args):
                     )
 
                 for key in keys:
+                    if missing_only and stats.commit_has_stat(commit, key):
+                        # Can skip this...
+                        continue
+
                     command = config.command_for_stat(key)
                     value = (
                         subprocess.check_output(command, shell=True)
@@ -203,7 +239,14 @@ def regen(keys, stash, git_log_args):
 
 
 @cli.command()
-@click.option("--key", "-k", "keys", default=[], multiple=True)
+@click.option(
+    "--key",
+    "-k",
+    "keys",
+    default=[],
+    multiple=True,
+    help="Stats to include (all if not specified)",
+)
 @click.option("--commitish", default="HEAD")
 def delete(keys, commitish):
     """Delete a single stat"""
@@ -237,11 +280,23 @@ def clear(remote):
 
 
 @cli.command()
-@click.option("--key", "-k", "keys", default=[], multiple=True)
+@click.option(
+    "--key",
+    "-k",
+    "keys",
+    default=[],
+    multiple=True,
+    help="Stats to include (all if not specified)",
+)
+@click.option(
+    "--regen-missing/--no-regen-missing",
+    default=True,
+    help="Regenerate stats on commits missing them",
+)
 @click.option("--git-name", default="github-actions")
 @click.option("--git-email", default="github-actions@github.com")
 @click.pass_context
-def ci(ctx, keys, git_name, git_email):
+def ci(ctx, keys, regen_missing, git_name, git_email):
     """All-in-one fetch, save, push"""
     # TODO pass these to save instead of setting config?
     click.secho("Setting git user.name and user.email...", fg="cyan")
@@ -255,8 +310,14 @@ def ci(ctx, keys, git_name, git_email):
     click.secho("Fetching stats from remote...", fg="cyan")
     ctx.invoke(fetch)
 
-    click.secho("\nSaving stats...", fg="cyan")
+    click.secho("\nSaving stats for the current commit...", fg="cyan")
     ctx.invoke(save, keys=keys)
+
+    if regen_missing:
+        click.secho(
+            "\nRegenerating stats for last 10 commits if they are missing...", fg="cyan"
+        )
+        ctx.invoke(regen, keys=keys, missing_only=True, git_log_args=["-n", "10"])
 
     click.secho("\nPushing stats to remote...", fg="cyan")
     ctx.invoke(push)

@@ -121,7 +121,7 @@ class Stats:
             ["git", "notes", "--ref", self.stats_ref, "show", commitish]
         )
 
-    def log(self, *, keys, config, values_only, fmt, git_log_args=[]):
+    def load(self, *, keys, config, fill_defaults, git_log_args=[]):
         stats = CommitStats()
 
         output = subprocess.check_output(
@@ -138,34 +138,51 @@ class Stats:
 
         for line in output.splitlines():
             if commit is None:
+                # We are expecting a new commit hash
                 commit = line
                 stats.append_commit(commit)
-                # Fill empty values first for all the keys we expect
-                for key in keys:
-                    stats.add(
-                        commit=commit,
-                        key=key,
-                        value=config.default_for_stat(key),
-                        type=config.type_for_stat(key),
-                    )
+
+                if fill_defaults:
+                    # Fill empty values first for all the keys we expect
+                    for key in keys:
+                        stats.add_or_update(
+                            commit=commit,
+                            key=key,
+                            value=config.default_for_stat(key),
+                            type=config.type_for_stat(key),
+                        )
+
                 continue
 
             if line == "COMMIT":
+                # The next line will be the commit hash
                 commit = None
                 continue
 
             if not line.strip():
+                # Skip empty lines
                 continue
 
+            # Parse a stat!
             key, value = line.split(":", 1)
 
             if key in keys:
-                stats.add(
+                stats.add_or_update(
                     commit=commit,
                     key=key,
                     value=value,
                     type=config.type_for_stat(key),
                 )
+
+        return stats
+
+    def log(self, *, keys, config, values_only, fmt, git_log_args=[]):
+        stats = self.load(
+            keys=keys,
+            config=config,
+            fill_defaults=True,
+            git_log_args=git_log_args,
+        )
 
         if fmt == "tsv":
             stats.print(values_only=values_only, sep="\t")
