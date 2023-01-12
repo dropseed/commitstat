@@ -184,6 +184,9 @@ def regen(keys, stash, missing_only, git_log_args):
     if missing_only:
         total_commits = len(commits)
         commits = stats.commits_missing_stats(keys)
+        if not commits:
+            click.secho("No missing stats!", fg="green")
+            return
         prompt = (
             f"Regenerate {list(keys)} stats for {len(commits)}"
             + f" of {total_commits} commits?"
