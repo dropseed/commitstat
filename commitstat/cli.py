@@ -192,8 +192,8 @@ def regen(keys, stash, missing_only, git_log_args):
         prompt = f"Regenerate {list(keys)} stats for {len(commits)} commits?"
 
     # Let CI skip this if it can't prompt
-    if not os.isatty(sys.stdin.fileno()) or not click.prompt(prompt, default=True):
-        exit(1)
+    if os.isatty(sys.stdin.fileno()):
+        click.confirm(prompt, abort=True)
 
     if stash:
         subprocess.check_call(["git", "stash"], stdout=subprocess.DEVNULL)
