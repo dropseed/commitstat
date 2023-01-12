@@ -77,6 +77,54 @@ jobs:
 
 ```
 
+By default, `ci` will try to also regenerate any missing stats for the latest 10 commits (useful if you push multiple commits at once).
+
+But in order for this to work, you need more commits accessible in CI (TODO can you log off the git remote?). In GitHub Actions, you can use `fetch-depth` to do this:
+
+```yaml
+name: test
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 10
+    # ...
+    - run: pipx run --spec git+https://github.com/dropseed/commitstat@git-stats git-stats ci
+```
+
+You can also send the stats to the GitHub Actions summary:
+
+```yaml
+name: test
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 10
+    # ...
+    - run: |
+        pipx install git+https://github.com/dropseed/commitstat@git-stats
+        git stats ci
+
+        echo "## Commit Stats" >> "$GITHUB_STEP_SUMMARY"
+        echo '```' >> "$GITHUB_STEP_SUMMARY"
+        git stats log --format sparklines --reverse >> "$GITHUB_STEP_SUMMARY"
+        echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+```
+
 ## Retroactive stats
 
 You're probably introducing this into an existing project,
