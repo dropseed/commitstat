@@ -10,6 +10,9 @@ class Stats:
     def save(self, *, key, value, commitish="HEAD"):
         # TODO use the new CommitStats classes for this?
         # would be nice to keep existing order for stats though in message
+
+        # TODO should verify value is valid -- re-use parse_value on CommitStat?
+        # don't want to save a malformed value
         stat_line = f"{key}: {value}"
 
         if existing_stats := self.get(commitish):

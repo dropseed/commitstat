@@ -85,7 +85,13 @@ class CommitStat:
         return value
 
     def add_or_update(self, commit, value):
-        self.commit_values[commit] = self.parse_value(value)
+        try:
+            self.commit_values[commit] = self.parse_value(value)
+        except ValueError:
+            print(
+                f'Could not parse value "{value}" on commit {commit}. '
+                + 'Setting value to "missing".'
+            )
 
     def get(self, commit):
         return self.commit_values[commit]
